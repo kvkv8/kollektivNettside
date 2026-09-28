@@ -52,3 +52,35 @@ export function formatDate(date: string): string {
 export function formatTime(time: string): string {
   return time.slice(0, 5);
 }
+
+/** ISO 8601 week number (weeks start Monday; week 1 contains the year's first Thursday). */
+export function isoWeek(date: string): number {
+  const thursday = addDays(mondayOf(date), 3);
+  return 1 + Math.floor(daysBetween(`${thursday.slice(0, 4)}-01-01`, thursday) / 7);
+}
+
+/** Pieces for a little calendar tile: { weekday: "ons", day: 30, month: "sep" } */
+export function dateParts(date: string) {
+  const d = toUtc(date);
+  return {
+    weekday: WEEKDAYS[d.getUTCDay()].slice(0, 3),
+    day: d.getUTCDate(),
+    month: MONTHS[d.getUTCMonth()],
+  };
+}
+
+/** "I dag", "I morgen", "Om 3 dager", or null when it's further than a week away (or past). */
+export function relativeDay(date: string, today: string): string | null {
+  const days = daysBetween(today, date);
+  if (days === 0) return "I dag";
+  if (days === 1) return "I morgen";
+  if (days > 1 && days <= 7) return `Om ${days} dager`;
+  return null;
+}
+
+/** The current hour (0–23) in Oslo. */
+export function hourInOslo(now = new Date()): number {
+  return Number(
+    new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Oslo", hour: "2-digit", hourCycle: "h23" }).format(now),
+  );
+}

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { DeleteButton } from "@/components/DeleteButton";
+import { EmptyState } from "@/components/EmptyState";
 import { EventItem } from "@/components/EventItem";
+import { ItemActions } from "@/components/ItemActions";
 import { PageHeader } from "@/components/PageHeader";
+import { PageTransition } from "@/components/PageTransition";
+import { stagger } from "@/components/stagger";
 import { listUpcomingEvents } from "@/lib/events";
 import { deleteEventAction } from "./actions";
 
@@ -12,26 +14,23 @@ export default async function CalendarPage() {
   const events = await listUpcomingEvents();
 
   return (
-    <>
-      <PageHeader title="Kalender" action={{ href: "/kalender/ny", label: "+ Ny hendelse" }} />
+    <PageTransition>
+      <PageHeader title="Kalender" emoji="📅" action={{ href: "/kalender/ny", label: "+ Ny hendelse" }} />
       {events.length === 0 ? (
-        <p className="text-muted">Ingenting planlagt.</p>
+        <EmptyState emoji="🛋️" i={1}>
+          Ingenting planlagt.
+        </EmptyState>
       ) : (
         <ul className="flex flex-col gap-3">
-          {events.map((event) => (
-            <li key={event.id}>
+          {events.map((event, i) => (
+            <li key={event.id} className="rise" style={stagger(Math.min(i + 1, 8))}>
               <EventItem event={event}>
-                <div className="flex justify-end gap-4">
-                  <Link href={`/kalender/${event.id}`} className="text-sm text-muted">
-                    Rediger
-                  </Link>
-                  <DeleteButton action={deleteEventAction.bind(null, event.id)} />
-                </div>
+                <ItemActions editHref={`/kalender/${event.id}`} deleteAction={deleteEventAction.bind(null, event.id)} />
               </EventItem>
             </li>
           ))}
         </ul>
       )}
-    </>
+    </PageTransition>
   );
 }

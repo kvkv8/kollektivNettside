@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/PageHeader";
+import { PageTransition } from "@/components/PageTransition";
 import { QuoteForm } from "@/components/QuoteForm";
 import { getQuote, listSpeakerNames } from "@/lib/quotes";
 import { isId } from "@/lib/validation";
@@ -16,8 +17,8 @@ export default async function EditQuotePage({ params }: PageProps<"/sitater/[id]
   if (!quote) notFound();
 
   return (
-    <>
-      <PageHeader title="Rediger sitat" />
+    <PageTransition>
+      <PageHeader title="Rediger sitat" emoji="✏️" back={{ href: "/sitater", label: "Sitater" }} />
       <QuoteForm
         action={updateQuoteAction.bind(null, id)}
         speakers={speakers}
@@ -28,6 +29,6 @@ export default async function EditQuotePage({ params }: PageProps<"/sitater/[id]
           context: quote.context ?? "",
         }}
       />
-    </>
+    </PageTransition>
   );
 }

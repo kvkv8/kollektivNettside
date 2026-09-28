@@ -8,7 +8,7 @@ export function DeleteButton({ action }: { action: () => Promise<void> }) {
   return (
     <button
       type="button"
-      className="text-sm text-danger disabled:opacity-60"
+      className="rounded-full px-3 py-1 text-sm font-medium text-danger transition-colors hover:bg-danger/10 disabled:opacity-60"
       disabled={pending}
       onClick={() => {
         if (confirm("Er du sikker?")) startTransition(action);

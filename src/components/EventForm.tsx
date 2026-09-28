@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import type { FormState } from "@/lib/validation";
 import { FieldError } from "./Field";
 import { FormActions } from "./FormActions";
+import { stagger } from "./stagger";
 
 type Props = {
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
@@ -17,7 +18,7 @@ export function EventForm({ action, initial }: Props) {
   const errors = state.errors ?? {};
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
+    <form action={formAction} className="card rise flex flex-col gap-4" style={stagger(1)}>
       <label className="field">
         <span>Tittel</span>
         <input

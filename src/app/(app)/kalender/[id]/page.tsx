@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { EventForm } from "@/components/EventForm";
 import { PageHeader } from "@/components/PageHeader";
+import { PageTransition } from "@/components/PageTransition";
 import { getEvent } from "@/lib/events";
 import { formatTime } from "@/lib/dates";
 import { isId } from "@/lib/validation";
@@ -17,8 +18,8 @@ export default async function EditEventPage({ params }: PageProps<"/kalender/[id
   if (!event) notFound();
 
   return (
-    <>
-      <PageHeader title="Rediger hendelse" />
+    <PageTransition>
+      <PageHeader title="Rediger hendelse" emoji="✏️" back={{ href: "/kalender", label: "Kalender" }} />
       <EventForm
         action={updateEventAction.bind(null, id)}
         initial={{
@@ -28,6 +29,6 @@ export default async function EditEventPage({ params }: PageProps<"/kalender/[id
           description: event.description ?? "",
         }}
       />
-    </>
+    </PageTransition>
   );
 }

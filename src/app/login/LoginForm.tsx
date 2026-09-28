@@ -7,7 +7,12 @@ export function LoginForm() {
   const [state, formAction, pending] = useActionState<LoginState, FormData>(login, {});
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
+    // A new key on every failed attempt remounts the form, which replays the shake.
+    <form
+      key={state.attempt ?? 0}
+      action={formAction}
+      className={`card flex flex-col gap-4 p-5 ${state.attempt ? "shake" : "rise"}`}
+    >
       <label className="field">
         <span>Passord</span>
         <input type="password" name="password" autoComplete="current-password" required autoFocus />

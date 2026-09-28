@@ -1,26 +1,49 @@
 @import "tailwindcss";
 
+/*
+ * Palette: warm cream base, one accent (tomato), and one hue per kind of thing on the site,
+ * so the eye learns "green = søppel, blue = tømming, violet = hendelser, pink = sitater".
+ */
 :root {
-  --background: #faf7f2;
-  --surface: #ffffff;
-  --foreground: #1f1b16;
-  --muted: #6f665c;
-  --border: #e6ded3;
-  --accent: #c2410c;
+  --background: #fbf5ec;
+  /* Slightly see-through, so the backdrop glows through cards (they blur what's behind). */
+  --surface: rgb(255 255 255 / 0.82);
+  --foreground: #241d16;
+  --muted: #776c60;
+  --border: #ece1d3;
+  --accent: #e4572e;
+  --accent-2: #f59e0b;
   --accent-foreground: #ffffff;
-  --danger: #b91c1c;
+  --danger: #c0262d;
+
+  --trash: #1f9d68;
+  --pickup: #2b78d0;
+  --event: #7453d9;
+  --quote: #d93f76;
+  --sun: #e8a317;
+
+  --shadow: 0 1px 2px rgb(60 40 20 / 0.06), 0 8px 24px -12px rgb(60 40 20 / 0.18);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #16130f;
-    --surface: #221e19;
-    --foreground: #f1ebe3;
-    --muted: #a89e92;
-    --border: #3a332b;
-    --accent: #fb923c;
-    --accent-foreground: #1f1b16;
+    --background: #14110e;
+    --surface: rgb(31 26 21 / 0.72);
+    --foreground: #f3ece3;
+    --muted: #a99d90;
+    --border: #342c24;
+    --accent: #ff7a4d;
+    --accent-2: #fbbf24;
+    --accent-foreground: #1a120c;
     --danger: #f87171;
+
+    --trash: #3ecf8e;
+    --pickup: #5ea8ff;
+    --event: #a58bff;
+    --quote: #ff79a6;
+    --sun: #fbc54a;
+
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 30px -14px rgb(0 0 0 / 0.6);
   }
 }
 
@@ -33,39 +56,330 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-danger: var(--danger);
+  --color-trash: var(--trash);
+  --color-pickup: var(--pickup);
+  --color-event: var(--event);
+  --color-quote: var(--quote);
   --font-sans: var(--font-geist-sans);
+  --font-display: var(--font-bricolage);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* The animated backdrop behind everything lives in scenes.css. */
+
+h1,
+h2 {
+  font-family: var(--font-bricolage), var(--font-geist-sans), system-ui, sans-serif;
 }
 
 @layer components {
   .card {
-    @apply rounded-2xl border border-border bg-surface p-4;
+    @apply rounded-3xl border border-border bg-surface p-4 backdrop-blur-lg;
+    box-shadow: var(--shadow);
+  }
+
+  /* A card tinted with --tone (set by the tone-* utilities below). */
+  .card-tinted {
+    @apply rounded-3xl border p-4 backdrop-blur-lg;
+    border-color: color-mix(in oklab, var(--tone) 22%, var(--border));
+    background:
+      radial-gradient(120% 90% at 100% 0%, color-mix(in oklab, var(--tone) 18%, transparent), transparent 60%),
+      color-mix(in oklab, var(--tone) 6%, var(--surface));
+    box-shadow: var(--shadow);
+  }
+
+  .eyebrow {
+    @apply flex items-center gap-1.5 text-xs font-semibold tracking-wider uppercase;
+    color: var(--tone, var(--muted));
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold;
+    color: color-mix(in oklab, var(--tone) 80%, var(--foreground));
+    background: color-mix(in oklab, var(--tone) 14%, var(--surface));
+  }
+  .chip::before {
+    content: "";
+    @apply size-2 rounded-full;
+    background: var(--tone);
   }
 
   .field {
-    @apply flex flex-col gap-1.5 text-sm font-medium;
+    @apply flex flex-col gap-1.5 text-sm font-semibold;
   }
   .field input,
   .field textarea {
-    @apply w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-base font-normal outline-none focus:border-accent;
+    @apply w-full rounded-2xl border border-border bg-surface px-3.5 py-3 text-base font-normal outline-none;
+    transition:
+      border-color 150ms,
+      box-shadow 200ms;
+  }
+  .field input:focus,
+  .field textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 18%, transparent);
   }
   .field .hint {
     @apply text-xs font-normal text-muted;
   }
 
   .btn-primary {
-    @apply rounded-xl bg-accent px-4 py-2.5 font-semibold text-accent-foreground disabled:opacity-60;
+    @apply inline-flex items-center justify-center gap-1 rounded-full px-5 py-2.5 font-semibold text-accent-foreground;
+    background: linear-gradient(135deg, var(--accent), color-mix(in oklab, var(--accent) 55%, var(--accent-2)));
+    box-shadow: 0 6px 16px -6px color-mix(in oklab, var(--accent) 70%, transparent);
+    transition:
+      transform 150ms cubic-bezier(0.3, 1.6, 0.5, 1),
+      box-shadow 150ms,
+      filter 150ms;
   }
+  .btn-primary:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+  }
+  .btn-primary:active {
+    transform: scale(0.96);
+  }
+  .btn-primary:disabled {
+    @apply opacity-60;
+    transform: none;
+  }
+
   .btn-secondary {
-    @apply rounded-xl border border-border px-4 py-2.5 font-medium;
+    @apply inline-flex items-center justify-center rounded-full border border-border bg-surface px-5 py-2.5 font-medium;
+    transition: transform 150ms;
+  }
+  .btn-secondary:active {
+    transform: scale(0.96);
   }
 
   .error {
-    @apply text-sm text-danger;
+    @apply text-sm font-medium text-danger;
+  }
+
+  /* Sitater as sticky notes on the fridge: a slight tilt and a rotating colour per note. */
+  .note {
+    --tone: var(--quote);
+    @apply relative overflow-hidden;
+    transition:
+      transform 250ms cubic-bezier(0.3, 1.4, 0.5, 1),
+      box-shadow 250ms;
+  }
+  .note::before {
+    content: "“";
+    @apply pointer-events-none absolute -top-5 right-3 font-display text-8xl leading-none font-bold;
+    color: color-mix(in oklab, var(--tone) 22%, transparent);
+  }
+  .note-list > li:nth-child(4n + 1) .note {
+    --tone: var(--quote);
+    rotate: -0.7deg;
+  }
+  .note-list > li:nth-child(4n + 2) .note {
+    --tone: var(--sun);
+    rotate: 0.6deg;
+  }
+  .note-list > li:nth-child(4n + 3) .note {
+    --tone: var(--pickup);
+    rotate: -0.4deg;
+  }
+  .note-list > li:nth-child(4n + 4) .note {
+    --tone: var(--trash);
+    rotate: 0.8deg;
+  }
+  .note:hover {
+    rotate: 0deg;
+    transform: translateY(-2px);
+  }
+}
+
+@utility tone-trash {
+  --tone: var(--trash);
+}
+@utility tone-pickup {
+  --tone: var(--pickup);
+}
+@utility tone-event {
+  --tone: var(--event);
+}
+@utility tone-quote {
+  --tone: var(--quote);
+}
+@utility tone-accent {
+  --tone: var(--accent);
+}
+@utility tone-muted {
+  --tone: var(--muted);
+}
+
+/* Entrance: things rise into place one after another. Set --i on each element for the stagger. */
+@utility rise {
+  animation: rise 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+@utility wobble {
+  animation: wobble 2.8s ease-in-out infinite;
+  transform-origin: 50% 90%;
+}
+
+@utility float {
+  animation: float 4s ease-in-out infinite;
+}
+
+@utility shake {
+  animation: shake 420ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@utility pop {
+  animation: pop 400ms cubic-bezier(0.3, 1.8, 0.5, 1) both;
+}
+
+/* Gradient text for the name on duty. */
+@utility text-shine {
+  background: linear-gradient(
+    100deg,
+    var(--tone) 0%,
+    color-mix(in oklab, var(--tone) 50%, var(--accent-2)) 50%,
+    var(--tone) 100%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  color: transparent;
+  animation: shine 6s linear infinite;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes wobble {
+  0%,
+  70%,
+  100% {
+    rotate: 0deg;
+  }
+  76% {
+    rotate: -12deg;
+  }
+  84% {
+    rotate: 9deg;
+  }
+  92% {
+    rotate: -4deg;
+  }
+}
+@keyframes float {
+  50% {
+    transform: translateY(-8px) rotate(-3deg);
+  }
+}
+@keyframes shake {
+  20%,
+  60% {
+    transform: translateX(-8px);
+  }
+  40%,
+  80% {
+    transform: translateX(8px);
+  }
+}
+@keyframes pop {
+  0% {
+    transform: scale(0.6);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes shine {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ---- Page transitions (React <ViewTransition>, see src/components/PageTransition.tsx) ---- */
+
+::view-transition {
+  pointer-events: none;
+}
+
+::view-transition-old(.nav-forward) {
+  --slide-offset: -40px;
+  animation:
+    140ms ease-in both fade reverse,
+    320ms ease-in-out both slide reverse;
+}
+::view-transition-new(.nav-forward) {
+  --slide-offset: 40px;
+  animation:
+    200ms ease-out 120ms both fade,
+    320ms ease-in-out both slide;
+}
+::view-transition-old(.nav-back) {
+  --slide-offset: 40px;
+  animation:
+    140ms ease-in both fade reverse,
+    320ms ease-in-out both slide reverse;
+}
+::view-transition-new(.nav-back) {
+  --slide-offset: -40px;
+  animation:
+    200ms ease-out 120ms both fade,
+    320ms ease-in-out both slide;
+}
+
+/* The bottom bar stays put while pages slide underneath it. */
+::view-transition-group(bottom-nav) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(bottom-nav) {
+  display: none;
+}
+::view-transition-new(bottom-nav) {
+  animation: none;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+@keyframes slide {
+  from {
+    translate: var(--slide-offset);
+  }
+  to {
+    translate: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after,
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0s !important;
   }
 }
