@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+:root {
+  --background: #faf7f2;
+  --surface: #ffffff;
+  --foreground: #1f1b16;
+  --muted: #6f665c;
+  --border: #e6ded3;
+  --accent: #c2410c;
+  --accent-foreground: #ffffff;
+  --danger: #b91c1c;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #16130f;
+    --surface: #221e19;
+    --foreground: #f1ebe3;
+    --muted: #a89e92;
+    --border: #3a332b;
+    --accent: #fb923c;
+    --accent-foreground: #1f1b16;
+    --danger: #f87171;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-geist-sans);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-border bg-surface p-4;
+  }
+
+  .field {
+    @apply flex flex-col gap-1.5 text-sm font-medium;
+  }
+  .field input,
+  .field textarea {
+    @apply w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-base font-normal outline-none focus:border-accent;
+  }
+  .field .hint {
+    @apply text-xs font-normal text-muted;
+  }
+
+  .btn-primary {
+    @apply rounded-xl bg-accent px-4 py-2.5 font-semibold text-accent-foreground disabled:opacity-60;
+  }
+  .btn-secondary {
+    @apply rounded-xl border border-border px-4 py-2.5 font-medium;
+  }
+
+  .error {
+    @apply text-sm text-danger;
+  }
+}
